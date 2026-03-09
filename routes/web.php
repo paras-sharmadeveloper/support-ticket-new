@@ -10,7 +10,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\EmailSettingController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 

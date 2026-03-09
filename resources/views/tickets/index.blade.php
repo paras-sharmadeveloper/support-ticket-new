@@ -23,7 +23,7 @@
                 <thead class="bg-gray-100">
 
                     <tr>
-
+                        <th class="p-3">Created By</th>
                         <th class="p-3 text-left">Ticket</th>
                         <th class="p-3 text-left">Title</th>
                         <th class="p-3 text-left">Priority</th>
@@ -38,6 +38,10 @@
 
                     @foreach ($tickets as $ticket)
                         <tr class="border-t">
+                            <td class="p-3">
+                                {{ $ticket->ticketCreator->name ?? 'N/A' }}
+                                ({{ $ticket->ticketCreator->department->name ?? 'N/A' }})
+                            </td>
 
                             <td class="p-3">{{ $ticket->ticket_number }}</td>
 

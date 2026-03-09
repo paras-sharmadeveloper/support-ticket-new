@@ -11,8 +11,7 @@ class LoadCompanyMailConfig
 {
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->check()) {
-
+        if (auth()->check()) { 
             $companyId = auth()->user()->company_id ?? 0;
 
             $setting = EmailSetting::where('company_id', $companyId)->first();

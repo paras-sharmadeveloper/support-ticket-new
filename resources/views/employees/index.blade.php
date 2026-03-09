@@ -28,6 +28,7 @@
                         <th class="p-3 text-left">Name</th>
                         <th class="p-3 text-left">Email</th>
                         <th class="p-3 text-left">Department</th>
+                        <th>Actions</th>
 
                     </tr>
 
@@ -52,6 +53,20 @@
 
                             <td class="p-3">
                                 {{ $employee->department->name ?? '' }}
+                            </td>
+                            <td>
+                                <form method="POST" action="{{ route('employees.resend.email', $employee->id) }}"
+                                    class="inline">
+
+                                    @csrf
+
+                                    <button class="bg-blue-600 text-white px-3 py-1 rounded">
+
+                                        Resend Email
+
+                                    </button>
+
+                                </form>
                             </td>
 
                         </tr>

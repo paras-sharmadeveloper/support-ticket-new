@@ -47,7 +47,7 @@ class EmailSettingController extends Controller
     public function sendTest(Request $request)
     {
         try {
-
+// dd(config('mail.mailers.smtp'));
             Mail::raw('This is a test email from support system', function ($mail) use ($request) {
 
                 $mail->to($request->email)

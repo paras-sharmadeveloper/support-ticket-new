@@ -2,34 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ticket;
+use App\Models\{Ticket, User};
 use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Models\TicketTag;
 use App\Models\TicketMessage;
 use App\Models\TicketAttachment;
+use App\Notifications\TicketCreatedNotification;
 
 class TicketController extends Controller
 {
     public function index(Request $request)
     {
-
         $user = auth()->user();
+
         $departmentId = $user->department_id;
+        $companyId = $user->company_id;
 
-        $query = Ticket::query();
+        // Base query → company tickets only
+        $query = Ticket::where('company_id', $companyId);
 
-        $query->where(function ($q) use ($departmentId, $user) {
+        // Employee restriction
+        if ($user->role != 'admin') {
 
-            $q->where('created_by', $user->id)
+            $query->where(function ($q) use ($departmentId, $user) {
 
-                ->orWhere('department_id', $departmentId)
+                $q->where('created_by', $user->id)
 
-                ->orWhereHas('tags', function ($tag) use ($departmentId) {
+                    ->orWhere('department_id', $departmentId)
 
-                    $tag->where('department_id', $departmentId);
-                });
-        });
+                    ->orWhereHas('tags', function ($tag) use ($departmentId) {
+
+                        $tag->where('department_id', $departmentId);
+                    });
+            });
+        }
+
+        // Filters
 
         if ($request->status) {
             $query->where('status', $request->status);
@@ -39,14 +48,14 @@ class TicketController extends Controller
             $query->where('created_by', $user->id);
         }
 
-        $tickets = $query->latest()->get();
+        $tickets = $query->with('ticketCreator')->latest()->get();
 
         return view('tickets.index', compact('tickets'));
     }
 
     public function create()
     {
-        $departments = Department::all();
+        $departments = Department::where('company_id', auth()->user()->company_id)->get();
 
         return view('tickets.create', compact('departments'));
     }
@@ -69,7 +78,8 @@ class TicketController extends Controller
             'description' => $request->description,
             'department_id' => $request->department_id,
             'priority' => $request->priority,
-            'created_by' => auth()->id()
+            'created_by' => auth()->id(),
+            'company_id' => auth()->user()->company_id,
         ]);
 
         if ($request->hasFile('attachments')) {
@@ -100,13 +110,21 @@ class TicketController extends Controller
             }
         }
 
-        return redirect()->route('tickets.index')->with('success','Ticket created successfully');;
+        // $admins = User::where('company_id', auth()->user()->company_id)
+        //     ->where('role', 'company_admin')
+        //     ->get();
+
+        // foreach ($admins as $admin) {
+        //     $admin->notify(new TicketCreatedNotification($ticket));
+        // }
+
+        return redirect()->route('tickets.index')->with('success', 'Ticket created successfully');;
     }
 
     public function show($id)
     {
 
-        $ticket = Ticket::findOrFail($id);
+        $ticket = Ticket::with('ticketCreator')->where('id', $id)->firstOrFail();
 
         $messages = TicketMessage::where('ticket_id', $id)->get();
 
@@ -126,7 +144,7 @@ class TicketController extends Controller
 
         ]);
 
-        return redirect()->back()->with('success','Message added successfully');;
+        return redirect()->back()->with('success', 'Message added successfully');;
     }
     public function resolve($id)
     {

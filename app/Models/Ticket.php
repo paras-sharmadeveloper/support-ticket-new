@@ -18,10 +18,16 @@ class Ticket extends Model
         'created_by',
         'assigned_to',
         'resolved_by',
-        'resolved_at'
+        'resolved_at',
+        'company_id'
 
     ];
 
+
+    public function ticketCreator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
     public function department()
     {
         return $this->belongsTo(Department::class);

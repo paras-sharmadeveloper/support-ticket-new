@@ -19,7 +19,7 @@ class EmployeeLoginMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($user, $password)
+    public function __construct($user, $password=null)
     {
         $this->user = $user;
         $this->password = $password;
@@ -28,35 +28,6 @@ class EmployeeLoginMail extends Mailable
     public function build()
     {
         return $this->subject('Your Account Created')
-            ->view('emails.employee_login');
-    }
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'Employee Login Mail',
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'view.name',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
-    }
+            ->view('email.employee_login');
+    } 
 }

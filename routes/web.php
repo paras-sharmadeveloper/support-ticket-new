@@ -20,19 +20,18 @@ Route::get('/dashboard', function () {
 
     $userId = auth()->id();
 
-    $openTickets = Ticket::where('status','open')->count();
+    $openTickets = Ticket::where('status', 'open')->count();
 
-    $resolvedTickets = Ticket::where('status','resolved')->count();
+    $resolvedTickets = Ticket::where('status', 'resolved')->count();
 
-    $myTickets = Ticket::where('created_by',$userId)->count();
+    $myTickets = Ticket::where('created_by', $userId)->count();
 
-    return view('dashboard',compact(
+    return view('dashboard', compact(
         'openTickets',
         'resolvedTickets',
         'myTickets'
     ));
-
-})->middleware(['auth','company.active'])->name('dashboard');
+})->middleware(['auth', 'company.active'])->name('dashboard');
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
@@ -80,8 +79,8 @@ Route::middleware(['auth', 'company.active'])->group(function () {
     Route::get('/tickets/{id}', [TicketController::class, 'show'])->name('tickets.show');
 
     Route::post('/tickets/reply', [TicketController::class, 'reply'])->name('tickets.reply');
-    Route::post('/tickets/{id}/resolve', [TicketController::class,'resolve'])
-    ->name('tickets.resolve');
+    Route::post('/tickets/{id}/resolve', [TicketController::class, 'resolve'])
+        ->name('tickets.resolve');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -90,15 +89,19 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-Route::middleware(['auth'])->group(function(){
+Route::middleware(['auth', 'mail.config'])->group(function () {
 
-Route::get('/email-settings',[EmailSettingController::class,'index'])
-->name('email.settings');
+    Route::get('/email-settings', [EmailSettingController::class, 'index'])
+        ->name('email.settings');
 
-Route::post('/email-settings',[EmailSettingController::class,'store'])
-->name('email.settings.store');
+    Route::post('/email-settings', [EmailSettingController::class, 'store'])
+        ->name('email.settings.store');
 
-Route::post('/email-test',[EmailSettingController::class,'sendTest'])
-->name('email.settings.test');
+    Route::post('/email-test', [EmailSettingController::class, 'sendTest'])
+        ->name('email.settings.test');
 
+    Route::post(
+        '/employees/{id}/resend-email',
+        [EmployeeController::class, 'resendEmail']
+    )->name('employees.resend.email');
 });

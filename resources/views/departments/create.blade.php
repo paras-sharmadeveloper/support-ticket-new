@@ -1,47 +1,65 @@
 <x-app-layout>
 
-    <div class="flex justify-center mt-10">
+<div class="flex justify-center mt-10">
 
-        <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-xl">
+<div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-xl">
 
-            <h2 class="text-xl font-bold mb-6 text-center">
-                Add Department
-            </h2>
+<h2 class="text-xl font-bold mb-6 text-center">
 
-            <form method="POST" action="{{ route('departments.store') }}">
+{{ isset($department) ? 'Edit Department' : 'Create Department' }}
 
-                @csrf
+</h2>
 
-                <div class="mb-4">
+@if(session('success'))
 
-                    <label class="block mb-1 font-semibold">
-                        Department Name
-                    </label>
+<div class="bg-green-100 text-green-700 p-3 mb-4 rounded">
 
-                    <input type="text" name="name" class="border rounded w-full p-2">
+{{ session('success') }}
 
-                </div>
+</div>
 
-                <div class="mb-6">
+@endif
 
-                    <label class="block mb-1 font-semibold">
-                        Description
-                    </label>
+<form method="POST"
+action="{{ isset($department) ? route('departments.update',$department->id) : route('departments.store') }}">
 
-                    <textarea name="description" class="border rounded w-full p-2"></textarea>
+@csrf
 
-                </div>
+@if(isset($department))
+@method('PUT')
+@endif
 
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded w-full">
+<div class="mb-4">
 
-                    Save Department
+<label>Department Name</label>
 
-                </button>
+<input type="text"
+name="name"
+value="{{ old('name',$department->name ?? '') }}"
+class="border w-full p-2 rounded">
 
-            </form>
+</div>
 
-        </div>
+<div class="mb-6">
 
-    </div>
+<label>Description</label>
+
+<textarea
+name="description"
+class="border w-full p-2 rounded">{{ old('description',$department->description ?? '') }}</textarea>
+
+</div>
+
+<button class="bg-blue-600 text-white px-4 py-2 rounded w-full">
+
+{{ isset($department) ? 'Update Department' : 'Create Department' }}
+
+</button>
+
+</form>
+
+</div>
+
+</div>
 
 </x-app-layout>

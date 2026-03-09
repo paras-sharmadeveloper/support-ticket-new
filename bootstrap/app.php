@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'company.active' => \App\Http\Middleware\CheckCompanyStatus::class,
              'mail.config' => \App\Http\Middleware\LoadCompanyMailConfig::class,
-        ]);
+        ]); 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

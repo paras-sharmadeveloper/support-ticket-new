@@ -27,6 +27,7 @@
                         <th class="p-3 text-left">ID</th>
                         <th class="p-3 text-left">Department</th>
                         <th class="p-3 text-left">Description</th>
+                        <th class="p-3 text-left">Actions</th>
 
                     </tr>
 
@@ -47,6 +48,28 @@
 
                             <td class="p-3">
                                 {{ $department->description }}
+                            </td>
+                            <td class="p-3">
+                                <a href="{{ route('departments.edit', $department->id) }}"
+                                    class="bg-green-600 text-white px-3 py-1 rounded">
+
+                                    Edit
+
+                                </a>
+                                <form method="POST" action="{{ route('departments.destroy', $department->id) }}"
+                                    onsubmit="return confirm('Are you sure you want to delete this department?')"
+                                    class="inline">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button class="bg-red-600 text-white px-3 py-1 rounded">
+
+                                        Delete
+
+                                    </button>
+
+                                </form>
                             </td>
 
                         </tr>

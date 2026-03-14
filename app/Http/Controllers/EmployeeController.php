@@ -64,6 +64,20 @@ class EmployeeController extends Controller
 
         return view('employees.create', compact('departments'));
     }
+    public function destroy($id)
+    {
+
+        $user = User::where(
+            'company_id',
+            auth()->user()->company_id
+        )->findOrFail($id);
+
+        $user->delete();
+
+        return redirect()
+            ->route('employees.index')
+            ->with('success', 'Employee deleted successfully');
+    }
 
     public function store(Request $request)
     {
@@ -94,5 +108,49 @@ class EmployeeController extends Controller
 
 
         return redirect()->route('employees.index');
+    }
+
+    public function edit($id)
+    {
+
+        $employee = User::where(
+            'company_id',
+            auth()->user()->company_id
+        )->findOrFail($id);
+
+        $departments = Department::where(
+            'company_id',
+            auth()->user()->company_id
+        )->get();
+
+        return view(
+            'employees.create',
+            compact('employee', 'departments')
+        );
+    }
+
+    public function update(Request $request, $id)
+    {
+
+        $employee = User::findOrFail($id);
+
+        $data = [
+
+            'name' => $request->name,
+            'email' => $request->email,
+            'department_id' => $request->department_id
+
+        ];
+
+        if ($request->password) {
+
+            $data['password'] = bcrypt($request->password);
+        }
+
+        $employee->update($data);
+
+        return redirect()
+            ->route('employees.index')
+            ->with('success', 'Employee updated successfully');
     }
 }

@@ -7,7 +7,7 @@ use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Models\TicketTag;
 use App\Models\TicketMessage;
-use App\Models\{TicketAttachment, TicketMessageAttachment};
+use App\Models\{TicketAttachment, TicketMessageAttachment, Asset};
 use App\Notifications\TicketCreatedNotification;
 use App\Services\MailService;
 
@@ -57,8 +57,9 @@ class TicketController extends Controller
     public function create()
     {
         $departments = Department::where('company_id', auth()->user()->company_id)->get();
+        $assets = Asset::where('company_id', auth()->user()->company_id)->get();
 
-        return view('tickets.create', compact('departments'));
+        return view('tickets.create', compact('departments', 'assets'));
     }
 
     public function store(Request $request)
@@ -112,18 +113,25 @@ class TicketController extends Controller
             }
         }
 
-        $users = User::where(
-            'department_id',
-            $ticket->department_id
-        )->get();
+        $users = User::where('company_id', auth()->user()->company_id)
+            ->where('department_id', $ticket->department_id)->get();
 
         foreach ($users as $user) {
 
+            // Internal Notification
             $user->notify(
                 new TicketCreatedNotification($ticket)
             );
+
+            // Email Notification
+            MailService::send(
+                $user->email,
+                'New Ticket Assigned',
+                'email.ticket_assigned',
+                ['ticket' => $ticket],
+                auth()->user()->company_id
+            );
         }
-        MailService::send($user->email, 'New Ticket Assigned', 'emails.ticket_assigned', ['ticket' => $ticket], auth()->user()->company_id);
         return redirect()->route('tickets.index')->with('success', 'Ticket created successfully');;
     }
 

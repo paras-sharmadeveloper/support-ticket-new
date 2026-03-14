@@ -14,16 +14,6 @@ use App\Models\Location;
 class AssetController extends Controller
 {
 
-    public function showImport()
-    {
-
-        $assets = Asset::where(
-            'company_id',
-            auth()->user()->company_id
-        )->latest()->get();
-
-        return view('assets.import', compact('assets'));
-    }
     public function index(Request $request)
     {
 
@@ -54,6 +44,7 @@ class AssetController extends Controller
 
         $assets = $query->latest()->get();
 
+
         $departments = Department::where(
             'company_id',
             auth()->user()->company_id
@@ -77,9 +68,13 @@ class AssetController extends Controller
             'company_id',
             auth()->user()->company_id
         )->get();
+        $assets = Asset::where(
+            'company_id',
+            auth()->user()->company_id
+        )->get();
 
 
-        return view('assets.create', compact('departments', 'employees', 'locations'));
+        return view('assets.create', compact('departments', 'employees', 'locations', 'assets'));
     }
     public function store(Request $request)
     {
@@ -139,11 +134,15 @@ class AssetController extends Controller
             'company_id',
             auth()->user()->company_id
         )->get();
+        $assets = Asset::where(
+            'company_id',
+            auth()->user()->company_id
+        )->findOrFail($id);
 
 
         return view(
             'assets.create',
-            compact('asset', 'departments', 'employees', 'locations')
+            compact('assets', 'departments', 'employees', 'locations')
         );
     }
     public function importForm()

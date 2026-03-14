@@ -15,25 +15,29 @@ class MailService
         $setting = EmailSetting::where('company_id', $companyId)->first();
 
         if (!$setting) {
-            $setting = EmailSetting::where('company_id', 0)->first(); // super admin
+            $setting = EmailSetting::where('company_id', 0)->first(); // super admin SMTP
         }
 
-        if ($setting) {
-
-            Config::set('mail.mailers.smtp.host', $setting->host);
-            Config::set('mail.mailers.smtp.port', $setting->port);
-            Config::set('mail.mailers.smtp.username', $setting->username);
-            Config::set('mail.mailers.smtp.password', $setting->password);
-            Config::set('mail.mailers.smtp.encryption', $setting->encryption);
-
-            Config::set('mail.from.address', $setting->from_address);
-            Config::set('mail.from.name', $setting->from_name);
+        if (!$setting || !$setting->from_address) {
+            return false;
         }
 
-        Mail::send($view, $data, function ($mail) use ($to, $subject) {
+        // Dynamic SMTP config
+        Config::set('mail.mailers.smtp.host', $setting->host);
+        Config::set('mail.mailers.smtp.port', $setting->port);
+        Config::set('mail.mailers.smtp.username', $setting->username);
+        Config::set('mail.mailers.smtp.password', $setting->password);
+        Config::set('mail.mailers.smtp.encryption', $setting->encryption);
 
-            $mail->to($to)
-                ->subject($subject);
+        // Important: FROM header
+        Config::set('mail.from.address', $setting->from_address);
+        Config::set('mail.from.name', $setting->from_name);
+
+        Mail::send($view, $data, function ($mail) use ($to, $subject, $setting) {
+
+            $mail->from($setting->from_address, $setting->from_name);
+            $mail->to($to);
+            $mail->subject($subject);
         });
     }
 }

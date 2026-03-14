@@ -55,6 +55,12 @@
                                 {{ $employee->department->name ?? '' }}
                             </td>
                             <td>
+                                <a href="{{ route('employees.edit', $employee->id) }}"
+                                    class="bg-blue-500 text-white px-3 py-1 rounded">
+
+                                    Edit
+
+                                </a>
                                 <form method="POST" action="{{ route('employees.resend.email', $employee->id) }}"
                                     class="inline">
 
@@ -67,6 +73,19 @@
                                     </button>
 
                                 </form>
+                                <form method="POST" action="{{ route('employees.destroy', $employee->id) }}"
+                                    onsubmit="return confirm('Are you sure you want to delete this employee?')">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button class="text-white-600 bg-red-600 text-white px-3 py-1 rounded">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+
                             </td>
 
                         </tr>

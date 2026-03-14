@@ -52,6 +52,25 @@
                         @endif
                     @endforeach
 
+                    <div class="relative mr-4 pding-2" style="padding-top: 20px">
+
+                        <a href="{{ route('notifications.index') }}">
+
+                            🔔
+
+                            @if (auth()->user()->unreadNotifications->count())
+                                <span
+                                    class="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+
+                                    {{ auth()->user()->unreadNotifications->count() }}
+
+                                </span>
+                            @endif
+
+                        </a>
+
+                    </div>
+
                 </div>
             </div>
 

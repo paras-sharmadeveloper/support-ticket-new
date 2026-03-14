@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmailController;
-use App\Http\Controllers\TicketController;
+use App\Http\Controllers\{TicketController, NotificationController};
 use App\Http\Controllers\{EmailSettingController, AssetController, LocationController, RenewalController, DashboardController};
 
 use App\Models\{Ticket, Renewal};
@@ -74,12 +74,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tickets/store', [TicketController::class, 'store'])->name('tickets.store');
 });
 Route::middleware(['auth', 'company.active', 'mail.config'])->group(function () {
-
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 
     Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+    Route::get('/employees/edit/{id}', [EmployeeController::class, 'edit'])->name('employees.edit');
 
     Route::post('/employees/store', [EmployeeController::class, 'store'])->name('employees.store');
+    Route::put('/employees/update/{id}', [EmployeeController::class, 'update'])->name('employees.update');
 
     Route::get('/tickets/{id}', [TicketController::class, 'show'])->name('tickets.show');
 
@@ -88,10 +90,6 @@ Route::middleware(['auth', 'company.active', 'mail.config'])->group(function () 
         ->name('tickets.resolve');
 });
 
-Route::middleware(['auth', 'mail.config'])->group(function () {
-
-    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
-});
 
 
 Route::middleware(['auth', 'mail.config'])->group(function () {
@@ -114,8 +112,6 @@ Route::middleware(['auth', 'company.active'])->group(function () {
 
     Route::resource('assets', AssetController::class);
 });
-Route::get('/assets/import', [AssetController::class, 'importForm'])
-    ->name('assets.import');
 Route::get('/assets/{id}/view', [AssetController::class, 'show'])
     ->name('assets.view');
 Route::post('/assets/import', [AssetController::class, 'import'])
@@ -123,3 +119,5 @@ Route::post('/assets/import', [AssetController::class, 'import'])
 Route::post('/locations/store', [LocationController::class, 'store'])
     ->name('locations.store');
 Route::resource('renewals', RenewalController::class);
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->name('notifications.index');

@@ -75,6 +75,10 @@ return [
             'title' => 'Assets',
             'route' => 'assets.index'
         ],
+        [
+            'title' => 'Reminders',
+            'route' => 'renewals.index'
+        ],
 
         // [
         //     'title' => 'Mail',

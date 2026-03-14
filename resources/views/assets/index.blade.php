@@ -6,6 +6,56 @@
 
             <div class="flex justify-between mb-6">
 
+                <h2 class="text-xl font-bold">Assets Filters</h2>
+                <form method="GET" class="mb-6 bg-gray-50 p-4 rounded shadow flex gap-4">
+
+                    <input type="text" name="search" placeholder="Search Asset ID, Model, IP"
+                        value="{{ request('search') }}" class="border p-2 rounded w-1/3">
+
+                    <select name="department" class="border p-2 rounded">
+
+                        <option value="">Department</option>
+
+                        @foreach ($departments as $dept)
+                            <option value="{{ $dept->id }}"
+                                {{ request('department') == $dept->id ? 'selected' : '' }}>
+
+                                {{ $dept->name }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    <select name="asset_type" class="border p-2 rounded">
+
+                        <option value="">Asset Type</option>
+
+                        <option value="Desktop">Desktop</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Software">Software</option>
+                        <option value="Other Hardware">Other Hardware</option>
+                        <option value="Subscriptions">Subscriptions</option>
+
+                    </select>
+
+                    <button class="bg-blue-600 text-white px-4 rounded">
+
+                        Search
+
+                    </button>
+
+                    <a href="{{ route('assets.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded">
+
+                        Reset
+
+                    </a>
+
+                </form>
+            </div>
+
+            <div class="flex justify-between mb-6">
+
                 <h2 class="text-xl font-bold">Assets</h2>
 
                 <a href="{{ route('assets.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded">

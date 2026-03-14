@@ -23,15 +23,42 @@ class AssetController extends Controller
 
         return view('assets.import', compact('assets'));
     }
-    public function index()
+    public function index(Request $request)
     {
 
-        $assets = Asset::where(
+        $query = Asset::where(
             'company_id',
             auth()->user()->company_id
-        )->latest()->get();
+        );
 
-        return view('assets.index', compact('assets'));
+        if ($request->search) {
+
+            $query->where(function ($q) use ($request) {
+
+                $q->where('asset_id', 'like', '%' . $request->search . '%')
+                    ->orWhere('model', 'like', '%' . $request->search . '%')
+                    ->orWhere('ip', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->department) {
+
+            $query->where('department_id', $request->department);
+        }
+
+        if ($request->asset_type) {
+
+            $query->where('asset_type', $request->asset_type);
+        }
+
+        $assets = $query->latest()->get();
+
+        $departments = Department::where(
+            'company_id',
+            auth()->user()->company_id
+        )->get();
+
+        return view('assets.index', compact('assets', 'departments'));
     }
     public function create()
     {

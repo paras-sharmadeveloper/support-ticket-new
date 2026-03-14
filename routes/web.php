@@ -8,7 +8,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\TicketController;
-use App\Http\Controllers\{EmailSettingController, AssetController, LocationController, RenewalController};
+use App\Http\Controllers\{EmailSettingController, AssetController, LocationController, RenewalController, DashboardController};
 
 use App\Models\{Ticket, Renewal};
 
@@ -28,29 +28,8 @@ Route::middleware(['auth', 'company.active', 'mail.config'])->group(function () 
     Route::get('/mail/view/{id}', [EmailController::class, 'view'])->name('mail.view');
 });
 
-Route::get('/dashboard', function () {
-
-    $userId = auth()->id();
-
-    $openTickets = Ticket::where('status', 'open')->count();
-
-    $resolvedTickets = Ticket::where('status', 'resolved')->count();
-
-    $myTickets = Ticket::where('created_by', $userId)->count();
-    $reminders = Renewal::where('company_id', auth()->user()->company_id)
-        ->whereDate(
-            'renewal_date',
-            '<=',
-            now()->addDays(7)
-        )->get();
-
-    return view('dashboard', compact(
-        'openTickets',
-        'resolvedTickets',
-        'myTickets',
-        'reminders'
-    ));
-})->middleware(['auth', 'company.active'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'company.active'])->name('dashboard');
 
 
 Route::get('/companies/{id}/edit', [CompanyController::class, 'edit'])

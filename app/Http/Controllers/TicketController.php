@@ -7,8 +7,9 @@ use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Models\TicketTag;
 use App\Models\TicketMessage;
-use App\Models\TicketAttachment;
+use App\Models\{TicketAttachment, TicketMessageAttachment};
 use App\Notifications\TicketCreatedNotification;
+use App\Services\MailService;
 
 class TicketController extends Controller
 {
@@ -80,6 +81,7 @@ class TicketController extends Controller
             'priority' => $request->priority,
             'created_by' => auth()->id(),
             'company_id' => auth()->user()->company_id,
+            'asset_id' => $request->asset_id
         ]);
 
         if ($request->hasFile('attachments')) {
@@ -110,14 +112,18 @@ class TicketController extends Controller
             }
         }
 
-        // $admins = User::where('company_id', auth()->user()->company_id)
-        //     ->where('role', 'company_admin')
-        //     ->get();
+        $users = User::where(
+            'department_id',
+            $ticket->department_id
+        )->get();
 
-        // foreach ($admins as $admin) {
-        //     $admin->notify(new TicketCreatedNotification($ticket));
-        // }
+        foreach ($users as $user) {
 
+            $user->notify(
+                new TicketCreatedNotification($ticket)
+            );
+        }
+        MailService::send($user->email, 'New Ticket Assigned', 'emails.ticket_assigned', ['ticket' => $ticket], auth()->user()->company_id);
         return redirect()->route('tickets.index')->with('success', 'Ticket created successfully');;
     }
 
@@ -128,13 +134,14 @@ class TicketController extends Controller
 
         $messages = TicketMessage::where('ticket_id', $id)->get();
 
+
         return view('tickets.show', compact('ticket', 'messages'));
     }
 
     public function reply(Request $request)
     {
 
-        TicketMessage::create([
+        $message =  TicketMessage::create([
 
             'ticket_id' => $request->ticket_id,
 
@@ -143,6 +150,24 @@ class TicketController extends Controller
             'message' => $request->message
 
         ]);
+
+        if ($request->hasFile('attachments')) {
+
+            foreach ($request->file('attachments') as $file) {
+
+                $name = time() . '_' . $file->getClientOriginalName();
+
+                $file->move(public_path('uploads/ticket_messages'), $name);
+
+                TicketMessageAttachment::create([
+
+                    'ticket_message_id' => $message->id,
+
+                    'file' => $name
+
+                ]);
+            }
+        }
 
         return redirect()->back()->with('success', 'Message added successfully');;
     }

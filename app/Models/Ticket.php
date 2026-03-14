@@ -23,7 +23,10 @@ class Ticket extends Model
 
     ];
 
-
+    public function asset()
+    {
+        return $this->belongsTo(Asset::class);
+    }
     public function ticketCreator()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -59,5 +62,9 @@ class Ticket extends Model
     public function resolver()
     {
         return $this->belongsTo(User::class, 'resolved_by');
+    }
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class);
     }
 }

@@ -7,9 +7,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+
 class TicketCreatedNotification extends Notification
 {
-    protected $ticket;
+    public $ticket;
 
     public function __construct($ticket)
     {
@@ -21,22 +22,30 @@ class TicketCreatedNotification extends Notification
         return ['database', 'mail'];
     }
 
-    public function toMail($notifiable)
-    {
-        return (new MailMessage)
-            ->subject('New Ticket Created')
-            ->line('A new support ticket has been created.')
-            ->line('Ticket: ' . $this->ticket->title)
-            ->action('View Ticket', url('/tickets/' . $this->ticket->id));
-    }
-
-    public function toArray($notifiable)
+    public function toDatabase($notifiable)
     {
         return [
 
-            'ticket_id' => $this->ticket->id,
-            'title' => $this->ticket->title
+            'title' => 'New Ticket Assigned',
+
+            'message' => 'Ticket #' . $this->ticket->ticket_number . ' assigned to you',
+
+            'url' => route('tickets.show', $this->ticket->id)
 
         ];
+    }
+
+    public function toMail($notifiable)
+    {
+
+        return (new MailMessage)
+
+            ->subject('New Ticket Assigned')
+
+            ->line('A new ticket has been assigned to you.')
+
+            ->line('Ticket: ' . $this->ticket->title)
+
+            ->action('View Ticket', route('tickets.show', $this->ticket->id));
     }
 }

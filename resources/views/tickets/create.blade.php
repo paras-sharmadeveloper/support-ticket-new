@@ -51,7 +51,19 @@
 
                     </select>
                 </div>
+                <select name="asset_id" class="border rounded w-full p-2">
 
+                    <option value="">Select Asset</option>
+
+                    @foreach ($assets as $asset)
+                        <option value="{{ $asset->id }}">
+
+                            {{ $asset->asset_id }}
+
+                        </option>
+                    @endforeach
+
+                </select>
                 <!-- Priority -->
 
                 <div class="mb-5">

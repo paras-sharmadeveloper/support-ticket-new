@@ -108,6 +108,9 @@
                             <td class="p-3">{{ $asset->department->name ?? '-' }}</td>
 
                             <td class="p-3 flex gap-2">
+                                <a href="{{ route('assets.view', $asset->id) }}" class="text-green-600 hover:underline">
+                                    View
+                                </a>
 
                                 <a href="{{ route('assets.edit', $asset->id) }}" class="text-blue-600 hover:underline">
 

@@ -34,4 +34,8 @@ class Asset extends Model
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
+    public function asset()
+    {
+        return $this->belongsTo(Asset::class);
+    }
 }

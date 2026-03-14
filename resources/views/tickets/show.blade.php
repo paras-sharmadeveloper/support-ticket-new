@@ -61,27 +61,64 @@
                         <small class="text-gray-500">
                             {{ $msg->created_at->diffForHumans() }}
                         </small>
+                        @if ($msg->attachments->count())
+                            <div class="mt-3 flex gap-3 flex-wrap">
 
+                                @foreach ($msg->attachments as $file)
+                                    <a href="{{ asset('uploads/ticket_messages/' . $file->file) }}" target="_blank">
+
+                                        <img src="{{ asset('uploads/ticket_messages/' . $file->file) }}" width="100"
+                                            class="border rounded">
+
+                                    </a>
+                                @endforeach
+
+                            </div>
+                        @endif
                     </div>
                 @endforeach
 
                 <hr class="my-6">
 
-                <h3 class="font-bold mb-3">Reply</h3>
+                @if ($ticket->status == 'open')
+                    <h3 class="font-bold mb-3">Reply</h3>
 
-                <form method="POST" action="{{ route('tickets.reply') }}">
+                    <form method="POST" action="{{ route('tickets.reply') }}" enctype="multipart/form-data">
+
+                        @csrf
+
+                        <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
+
+
+                        <textarea name="message" class="border rounded w-full p-3 mb-4"></textarea>
+                        <div class="mb-6">
+                            <label class="block mb-2 font-semibold">Attachments</label>
+
+                            <input type="file" name="attachments[]" multiple class="border rounded w-full p-2">
+
+                        </div>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+
+                            Send Reply
+
+                        </button>
+
+                    </form>
+                @endif
+
+                <form method="POST" class="resolved-bb" style="float: right"
+                    action="{{ route('tickets.resolve', $ticket->id) }}">
 
                     @csrf
 
-                    <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
+                    @if ($ticket->status == 'open')
+                        <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded float-right">
+                            Resolve Ticket
 
-                    <textarea name="message" class="border rounded w-full p-3 mb-4"></textarea>
-
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-
-                        Send Reply
-
-                    </button>
+                        </button>
+                    @else
+                        <button class="bg-gray-600 text-white px-6 py-2 rounded float-right" disabled> Resolved</button>
+                    @endif
 
                 </form>
 
@@ -130,9 +167,21 @@
                                 <span class="bg-green-100 text-green-600 px-2 py-1 rounded">Resolved</span>
                             @endif
 
+
                         </div>
 
                     </div>
+                    @if ($ticket->status == 'resolved')
+                        <div>
+
+                            <span class="text-gray-500 text-sm">Resolved by and at</span>
+
+                            <div class="font-semibold">
+                                {{ $ticket->resolver ? $ticket->resolver->name : 'N/A' }} at
+                                {{ $ticket->resolved_at ? $ticket->resolved_at : 'N/A' }}
+                            </div>
+                        </div>
+                    @endif
 
                     <div>
 

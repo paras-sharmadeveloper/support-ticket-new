@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\{
     Asset,
     Department,
-    User
+    User,
+    Ticket
 };
 use Illuminate\Http\Request;
 use App\Models\Location;
@@ -13,7 +14,7 @@ use App\Models\Location;
 class AssetController extends Controller
 {
 
-    public function show()
+    public function showImport()
     {
 
         $assets = Asset::where(
@@ -254,5 +255,17 @@ class AssetController extends Controller
         return redirect()
             ->route('assets.index')
             ->with('success', 'Asset deleted successfully');
+    }
+
+    public function show($id)
+    {
+
+        $asset = Asset::with(['department', 'user'])
+            ->where('company_id', auth()->user()->company_id)
+            ->findOrFail($id);
+
+        $tickets = Ticket::where('asset_id', $id)->latest()->get();
+
+        return view('assets.view', compact('asset', 'tickets'));
     }
 }

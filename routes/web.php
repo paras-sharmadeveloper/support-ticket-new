@@ -116,7 +116,8 @@ Route::middleware(['auth', 'company.active'])->group(function () {
 });
 Route::get('/assets/import', [AssetController::class, 'importForm'])
     ->name('assets.import');
-
+Route::get('/assets/{id}/view', [AssetController::class, 'show'])
+    ->name('assets.view');
 Route::post('/assets/import', [AssetController::class, 'import'])
     ->name('assets.import.store');
 Route::post('/locations/store', [LocationController::class, 'store'])

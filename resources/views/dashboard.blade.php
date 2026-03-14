@@ -62,6 +62,24 @@
 
             </a>
 
+            <a href="/renewals">
+
+                <div class="bg-blue-500 text-white p-6 rounded">
+
+                    <h3 class="text-lg">My Reminders</h3>
+
+                    <p class="text-3xl font-bold">
+
+                        {{ $reminders->count() }}
+
+                    </p>
+
+                </div>
+
+            </a>
+
+
+
         </div>
 
     </div>

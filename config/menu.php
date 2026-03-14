@@ -22,7 +22,31 @@ return [
         [
             'title' => 'Email Settings',
             'route' => 'email.settings'
-        ]
+        ],
+
+        [
+            'title' => 'Mail',
+            'icon' => 'mail',
+            'children' => [
+
+                [
+                    'title' => 'Inbox',
+                    'route' => 'mail.inbox',
+                ],
+
+                [
+                    'title' => 'Sent',
+                    'route' => 'mail.sent',
+                ],
+
+                [
+                    'title' => 'Compose',
+                    'route' => 'mail.compose',
+                ],
+
+            ]
+
+        ],
 
     ],
 
@@ -46,9 +70,38 @@ return [
         [
             'title' => 'Email Settings',
             'route' => 'email.settings'
-        ]
+        ],
+        [
+            'title' => 'Assets',
+            'route' => 'assets.index'
+        ],
+
+        // [
+        //     'title' => 'Mail',
+        //     'icon' => 'mail',
+        //     'children' => [
+
+        //         [
+        //             'title' => 'Inbox',
+        //             'route' => 'mail.inbox',
+        //         ],
+
+        //         [
+        //             'title' => 'Sent',
+        //             'route' => 'mail.sent',
+        //         ],
+
+        //         [
+        //             'title' => 'Compose',
+        //             'route' => 'mail.compose',
+        //         ],
+
+        //     ]
+
+        // ],
 
     ],
+
     'employee' => [
 
         [
@@ -64,7 +117,31 @@ return [
         [
             'title' => 'My Tickets',
             'route' => 'tickets.index'
-        ]
+        ],
+
+        // [
+        //     'title' => 'Mail',
+        //     'icon' => 'mail',
+        //     'children' => [
+
+        //         [
+        //             'title' => 'Inbox',
+        //             'route' => 'mail.inbox',
+        //         ],
+
+        //         [
+        //             'title' => 'Sent',
+        //             'route' => 'mail.sent',
+        //         ],
+
+        //         [
+        //             'title' => 'Compose',
+        //             'route' => 'mail.compose',
+        //         ],
+
+        //     ]
+
+        // ],
 
     ],
 

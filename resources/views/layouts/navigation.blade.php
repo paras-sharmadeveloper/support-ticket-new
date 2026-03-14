@@ -18,9 +18,38 @@
                     @endphp
 
                     @foreach ($menus as $menu)
-                        <x-nav-link :href="route($menu['route'])" :active="request()->routeIs($menu['route'])">
-                            {{ $menu['title'] }}
-                        </x-nav-link>
+                        @if (isset($menu['children']))
+                            <div x-data="{ open: false }">
+
+                                <button @click="open=!open" class="px-3 py-2 flex justify-between w-full">
+
+                                    {{ $menu['title'] }}
+
+                                </button>
+
+                                <div x-show="open" class="pl-4">
+                                    <ul
+                                        class="pl-4 custom-scrollbar max-h-60 overflow-y-auto drop-shadow-lg bg-white rounded">
+                                        @foreach ($menu['children'] as $child)
+                                            <li>
+                                                <x-nav-link href="{{ route($child['route']) }}" :active="request()->routeIs($child['route'])">
+
+                                                    {{ $child['title'] }}
+
+                                                </x-nav-link>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+
+                            </div>
+                        @else
+                            <x-nav-link href="{{ route($menu['route']) }}" :active="request()->routeIs($menu['route'])">
+
+                                {{ $menu['title'] }}
+
+                            </x-nav-link>
+                        @endif
                     @endforeach
 
                 </div>
@@ -33,7 +62,7 @@
                         <button
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }} (<span>{{ Auth::user()->role }}</span>)</div>
-                            
+
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"

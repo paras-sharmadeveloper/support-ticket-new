@@ -6,15 +6,27 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\TicketController;
-use App\Http\Controllers\EmailSettingController;
+use App\Http\Controllers\{EmailSettingController, AssetController, LocationController, RenewalController};
+
+use App\Models\{Ticket, Renewal};
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::middleware(['auth', 'company.active', 'mail.config'])->group(function () {
 
-use App\Models\Ticket;
+    Route::get('/mail/inbox', [EmailController::class, 'inbox'])->name('mail.inbox');
+
+    Route::get('/mail/sent', [EmailController::class, 'sent'])->name('mail.sent');
+
+    Route::get('/mail/compose', [EmailController::class, 'compose'])->name('mail.compose');
+
+    Route::post('/mail/send', [EmailController::class, 'send'])->name('mail.send');
+    Route::get('/mail/view/{id}', [EmailController::class, 'view'])->name('mail.view');
+});
 
 Route::get('/dashboard', function () {
 
@@ -25,14 +37,27 @@ Route::get('/dashboard', function () {
     $resolvedTickets = Ticket::where('status', 'resolved')->count();
 
     $myTickets = Ticket::where('created_by', $userId)->count();
+    $reminders = Renewal::where('company_id', auth()->user()->company_id)
+        ->whereDate(
+            'renewal_date',
+            '<=',
+            now()->addDays(7)
+        )->get();
 
     return view('dashboard', compact(
         'openTickets',
         'resolvedTickets',
-        'myTickets'
+        'myTickets',
+        'reminders'
     ));
 })->middleware(['auth', 'company.active'])->name('dashboard');
 
+
+Route::get('/companies/{id}/edit', [CompanyController::class, 'edit'])
+    ->name('companies.edit');
+
+Route::put('/companies/{id}', [CompanyController::class, 'update'])
+    ->name('companies.update');
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
@@ -42,6 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+Route::middleware(['auth', 'company.active'])->group(function () {});
 
 require __DIR__ . '/auth.php';
 
@@ -68,7 +94,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/tickets/store', [TicketController::class, 'store'])->name('tickets.store');
 });
-Route::middleware(['auth', 'company.active'])->group(function () {
+Route::middleware(['auth', 'company.active', 'mail.config'])->group(function () {
 
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 
@@ -83,7 +109,7 @@ Route::middleware(['auth', 'company.active'])->group(function () {
         ->name('tickets.resolve');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'mail.config'])->group(function () {
 
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 });
@@ -105,3 +131,15 @@ Route::middleware(['auth', 'mail.config'])->group(function () {
         [EmployeeController::class, 'resendEmail']
     )->name('employees.resend.email');
 });
+Route::middleware(['auth', 'company.active'])->group(function () {
+
+    Route::resource('assets', AssetController::class);
+});
+Route::get('/assets/import', [AssetController::class, 'importForm'])
+    ->name('assets.import');
+
+Route::post('/assets/import', [AssetController::class, 'import'])
+    ->name('assets.import.store');
+Route::post('/locations/store', [LocationController::class, 'store'])
+    ->name('locations.store');
+Route::resource('renewals', RenewalController::class);

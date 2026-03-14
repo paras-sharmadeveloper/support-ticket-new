@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmployeeLoginMail;
-use App\Models\EmailSetting; 
+use App\Models\EmailSetting;
+
 class EmployeeController extends Controller
 {
     public function index()
@@ -22,33 +23,39 @@ class EmployeeController extends Controller
         return view('employees.index', compact('employees'));
     }
 
-    
+
 
     public function resendEmail($id)
     {
 
-        $companyId = auth()->user()->company_id ?? 0;
+        try {
+            $companyId = auth()->user()->company_id ?? 0;
 
-        $emailSetting = EmailSetting::where('company_id', $companyId)->first();
+            $emailSetting = EmailSetting::where('company_id', $companyId)->first();
+            if (!$emailSetting || !$emailSetting->from_address) {
 
-        if (!$emailSetting || !$emailSetting->from_address) {
+                return back()->with(
+                    'error',
+                    'Email sender is not configured. Please setup Email Settings first.'
+                );
+            }
+
+            $employee = User::where('company_id', $companyId)
+                ->findOrFail($id);
+
+            Mail::to($employee->email)
+                ->send(new EmployeeLoginMail($employee, null));
 
             return back()->with(
+                'success',
+                'Login email resent successfully'
+            );
+        } catch (\Throwable $th) {
+            return back()->with(
                 'error',
-                'Email sender is not configured. Please setup Email Settings first.'
+                'Failed to resend login email. Please check your email settings and try again.'
             );
         }
-
-        $employee = User::where('company_id', $companyId)
-            ->findOrFail($id);
-
-        Mail::to($employee->email)
-            ->send(new EmployeeLoginMail($employee, null));
-
-        return back()->with(
-            'success',
-            'Login email resent successfully'
-        );
     }
 
     public function create()
@@ -75,8 +82,16 @@ class EmployeeController extends Controller
             'department_id' => $request->department_id,
             'company_id' => auth()->user()->company_id
         ]);
-        Mail::to($user->email)
-            ->send(new EmployeeLoginMail($user, $request->password));
+        try {
+            Mail::to($user->email)
+                ->send(new EmployeeLoginMail($user, $request->password));
+        } catch (\Throwable $th) {
+            return back()->with(
+                'error',
+                'Failed to send login email. Please check your email settings and try again.'
+            );
+        }
+
 
         return redirect()->route('employees.index');
     }

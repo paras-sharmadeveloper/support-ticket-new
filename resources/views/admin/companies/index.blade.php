@@ -70,7 +70,7 @@
 
                             </td>
 
-                            <td class="p-3">
+                            <td class="p-3 d-flex flex-col">
 
                                 <form method="POST" action="{{ route('companies.status', $company->id) }}">
 
@@ -91,6 +91,10 @@
                                     @endif
 
                                 </form>
+                                <a href="{{ route('companies.edit', $company->id) }}" class="bg-blue-500 text-white px-3 py-1 rounded mt-2 inline-block">
+
+                                    Edit   
+                                 </a>
 
                             </td>
 
